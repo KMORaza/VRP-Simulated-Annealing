@@ -1,4 +1,4 @@
-// Split delivery vehicle routing problem (SDVRP) 
+// Split Delivery Vehicle Routing Problem (SDVRP) 
 #include <iostream>
 #include <vector>
 #include <cmath>
