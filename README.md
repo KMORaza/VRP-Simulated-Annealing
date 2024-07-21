@@ -12,4 +12,4 @@
 ![](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/figures/Figure%202024-07-21%2000_48_17.png) 
 
  * Period Vehicle Routing Problem (PVRP)
-  * g
+   * g
