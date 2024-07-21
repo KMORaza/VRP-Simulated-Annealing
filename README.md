@@ -4,3 +4,12 @@
    * [Visualization](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/visualization/cvrp.m)
 
 ![](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/figures/Figure%202024-07-21%2000_48_13.png) 
+
+ * Multi-Depot Vehicle Routing Problem (MDVRP)
+   * [Implementation & Solution](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/solutions/mdvrp.cpp)
+   * [Visualization](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/visualization/mdvrp.m)
+
+![](https://github.com/KMORaza/VRP-Simulated-Annealing/blob/main/figures/Figure%202024-07-21%2000_48_17.png) 
+
+ * Period Vehicle Routing Problem (PVRP)
+  * g
