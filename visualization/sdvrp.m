@@ -1,4 +1,4 @@
-% Split Delivery Vehicle Routing Problem (SDVRP) 
+%% Split Delivery Vehicle Routing Problem (SDVRP) 
 NUM_CUSTOMERS = 50;
 NUM_VEHICLES = 10;
 VEHICLE_CAPACITY = 100;
