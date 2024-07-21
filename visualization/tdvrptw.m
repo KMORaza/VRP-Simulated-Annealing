@@ -1,44 +1,80 @@
-%% Time Dependent Vehicle Routing Problem with Time Windows (TDVRPTW)nodes = [
-num_customers = 10;
-num_vehicles = 3;  
-max_capacity = 100;  
-depot = [0, 0];      
-rng(1); 
-customer_locations = 10 * rand(num_customers, 2);  
-customer_demands = randi([1, 10], num_customers, 1); 
-time_windows = randi([0, 8], num_customers, 2);  
-vehicle_routes = cell(num_vehicles, 1);
-for i = 1:num_vehicles
-    route_length = randi([2, num_customers]);  
-    vehicle_routes{i} = [1, randperm(num_customers, route_length - 1), 1]; 
+%% Time Dependent Vehicle Routing Problem with Time Windows (TDVRPTW)
+nNodes = 10; 
+nodes = rand(nNodes, 2) * 100; 
+demands = randi([1, 10], nNodes, 1); 
+time_windows = randi([0, 100], nNodes, 2); 
+travel_times = rand(nNodes, nNodes) * 50; 
+MaxIter = 1000; 
+InitialTemperature = 100; 
+CoolingSchedule = 0.95;
+best_solution = [];
+best_cost = Inf;
+initial_solution = cell(1, nNodes - 1);
+for i = 1:length(initial_solution)
+    initial_solution{i} = [1, randperm(nNodes-1) + 1, 1]; 
+end
+current_solution = initial_solution;
+current_cost = computeTotalCost(current_solution, travel_times);
+iter = 0;
+temperature = InitialTemperature;
+while iter < MaxIter && temperature > eps
+    new_solution = perturbSolution(current_solution);
+    new_cost = computeTotalCost(new_solution, travel_times);
+    if new_cost < current_cost || rand < exp(-(new_cost - current_cost) / temperature)
+        current_solution = new_solution;
+        current_cost = new_cost;
+        if current_cost < best_cost
+            best_solution = current_solution;
+            best_cost = current_cost;
+        end
+    end
+    temperature = CoolingSchedule * temperature;
+    iter = iter + 1;
+end
+function total_cost = computeTotalCost(solution, travel_times)
+    total_cost = 0;
+    for i = 1:length(solution)
+        route = solution{i};
+        for j = 1:length(route) - 1
+            total_cost = total_cost + travel_times(route(j), route(j+1));
+        end
+    end
+end
+function new_solution = perturbSolution(solution)
+    new_solution = solution;
+    numRoutes = length(new_solution);
+    if numRoutes > 1
+        r1 = randi(numRoutes);
+        r2 = randi(numRoutes);
+        if r1 ~= r2
+            idx1 = randi(length(new_solution{r1}) - 2) + 1;
+            idx2 = randi(length(new_solution{r2}) - 2) + 1;
+            temp = new_solution{r1}(idx1);
+            new_solution{r1}(idx1) = new_solution{r2}(idx2);
+            new_solution{r2}(idx2) = temp;
+        end
+    end
 end
 figure;
 hold on;
-title('TDVRPTW');
-plot(depot(1), depot(2), 'ko', 'MarkerSize', 10, 'MarkerFaceColor', 'k');
-text(depot(1), depot(2), ' Depot', 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-plot(customer_locations(:, 1), customer_locations(:, 2), 'bo', 'MarkerSize', 8, 'MarkerFaceColor', 'b');
-for i = 1:num_customers
-    text(customer_locations(i, 1), customer_locations(i, 2), sprintf(' %d', i), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-end
-colors = {'r', 'g', 'm', 'c', 'y'};
-for i = 1:num_vehicles
-    route = vehicle_routes{i};
-    route_locations = [depot; customer_locations(route, :); depot];
-    plot(route_locations(:, 1), route_locations(:, 2), '-o', 'Color', colors{i}, 'LineWidth', 1.5);
-    for j = 1:length(route)
-        text(route_locations(j, 1), route_locations(j, 2), sprintf(' %d', route(j)), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left');
+scatter(nodes(:, 1), nodes(:, 2), 100, 'filled', 'MarkerFaceColor', 'k');
+numRoutes = length(best_solution);
+colors = hsv(numRoutes);
+for r = 1:numRoutes
+    route = best_solution{r};
+    route_nodes = nodes(route, :);
+    plot(route_nodes(:, 1), route_nodes(:, 2), 'Color', colors(r, :), 'LineWidth', 2);
+    for j = 2:length(route)-1
+        tw = time_windows(route(j), :);
+        text(route_nodes(j, 1), route_nodes(j, 2), sprintf('TW: [%d, %d]', tw(1), tw(2)), ...
+            'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left', 'FontSize', 8);
     end
 end
-for i = 1:num_customers
-    start_time = time_windows(i, 1);
-    end_time = time_windows(i, 2);
-    plot(customer_locations(i, 1), customer_locations(i, 2), 'ks', 'MarkerSize', 8, 'MarkerFaceColor', 'w');
-    text(customer_locations(i, 1), customer_locations(i, 2), sprintf(' TW: [%d, %d]', start_time, end_time), 'VerticalAlignment', 'top', 'HorizontalAlignment', 'left');
-end
-legend_strings = [{'Depot'}, arrayfun(@(x) sprintf('Customer %d', x), 1:num_customers, 'UniformOutput', false), arrayfun(@(x) sprintf('Vehicle %d', x), 1:num_vehicles, 'UniformOutput', false)];
-legend(legend_strings, 'Location', 'Best');
-hold off;
-axis equal;
+plot(nodes(1, 1), nodes(1, 2), 's', 'MarkerSize', 12, 'MarkerEdgeColor', 'k', 'MarkerFaceColor', 'g');
+title('TDVRPTW');
 xlabel('X');
 ylabel('Y');
+grid on;
+axis equal;
+legend('Nodes', 'Routes', 'Depot', 'Location', 'Best');
+hold off;
